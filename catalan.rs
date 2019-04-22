@@ -19,7 +19,7 @@ fn is_finish(op_cnt: i32, n_cnt: i32) -> bool {
   op_cnt == 3 && n_cnt == 3
 }
 
-fn catalan_tree(op_cnt: i32, n_cnt: i32){
+fn catalan_tree(tree: Tree<i32>, op_cnt: i32, n_cnt: i32){
   //println!("{} {}", op_cnt, n_cnt);
   if is_finish(op_cnt, n_cnt){
     println!("{} {}", op_cnt, n_cnt)
@@ -29,16 +29,21 @@ fn catalan_tree(op_cnt: i32, n_cnt: i32){
   }
   // 演算子を積む
   if op_cnt < 3 {
-    catalan_tree(op_cnt + 1, n_cnt)
+    catalan_tree(
+      Tree::Node(Op::Plus, Box::new(Tree::Leaf(4)), Box::new(Tree::Leaf(4))),
+      op_cnt + 1, n_cnt)
   }
   // 数字を積む
   if op_cnt > n_cnt {
-    catalan_tree(op_cnt, n_cnt + 1)
+    catalan_tree(
+      Tree::Node(Op::Plus, Box::new(Tree::Leaf(4)), Box::new(Tree::Leaf(4))),
+      op_cnt, n_cnt + 1)
   }
 }
 
 fn main(){
   catalan_tree(
+    Tree::Node(Op::Plus, Box::new(Tree::Leaf(4)), Box::new(Tree::Leaf(4))),
     0,
     0
   )
