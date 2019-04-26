@@ -3,18 +3,22 @@
 // まず演算子を使う
 // 演算子を使い切るまで、演算子の使った数 >= 数字を使った数になる
 
-use Tree::Node;
 
 enum Op {
-    Plus,
-    Minus,
-    Mul,
-    Div
+  Plus,
+  Minus,
+  Mul,
+  Div
 }
 
-enum Tree<T> {
-    Leaf(T),
-    Node(Op, Option<Box<Tree<T>>>, Option<Box<Tree<T>>>),
+struct TreeNode {
+  left: Tree,
+  right: Tree
+}
+
+enum Tree {
+  Node(Box<TreeNode>),
+  Leaf { value: i32 }
 }
 
 fn is_finish(op_cnt: i32, n_cnt: i32) -> bool {
@@ -46,39 +50,58 @@ fn catalan_tree(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   }
 }
 
+/*
 fn build_tree(path: Vec<i32>, mut tree: Tree<i32>){
   if path.len() == 0 {
     return
   }
   let head = path[0];
-  // 演算子では最初の枝に、次の演算子を積む
-  // 数値の場合は、左の枝、右の枝、親の右の枝の順で空いているところを探して
-  /*match head {
+  // 演算子(2)では最初の枝に、次の演算子を積む
+  // 数値の(1)場合は、左の枝、右の枝、親の右の枝の順で空いているところを探して
+  match head {
     2 => Tree::Node(Op::Plus, None, None),
     1 => Tree::Node(Op::Plus, None, None),
     _ => Tree::Node(Op::Plus, None, None),
-  };*/
+  };
+}
+*/
+
+fn build_test(mut tree: TreeNode, depth: i32) -> TreeNode {
+  if depth > 4 {
+    return tree
+  }
+  let new_tree_node = TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } };
+  let new_node = build_test(new_tree_node, depth + 1);
+  tree.left = Tree::Node(Box::new(new_node));
+  return tree
+}
+
+fn calc_tree(tree: Tree) -> i32 {
+  return match tree {
+    Tree::Node(node) => {
+      let refnode = *node;
+      calc_tree(refnode.left) + calc_tree(refnode.right)
+    },
+    Tree::Leaf { value: v } => v,
+  }
+}
+
+fn format_tree(tree: Tree) -> String {
+  return match tree {
+    Tree::Node(node) => {
+      let refnode = *node;
+      format!("({} + {})", format_tree(refnode.left), format_tree(refnode.right))
+    },
+    Tree::Leaf { value: v } => format!("{}", v),
+  }
 }
 
 fn main(){
   //catalan_tree(vec![].clone(), 0, 0);
-  //let n = Tree::Node(Op::Plus, None, None);
-  let n = Tree::Node(
-    Op::Plus,
-    Some(Box::new(Tree::Leaf(4))),
-    Some(Box::new(Tree::Leaf(4))));
-  let n2 = Tree::Node(
-    Op::Plus,
-    None,
-    Some(Box::new(Tree::Leaf(4))));
-  let n3 = Tree::Node(
-    Op::Plus,
-    Some(Box::new(Tree::Leaf(4))),
-    None);
-  let n3: Tree<i32> = Tree::Node(
-    Op::Plus,
-    None,
-    None);
-
-  //build_tree(vec![2,2,2,1,1,1,1])
+  let tree = Tree::Node(Box::new(TreeNode {
+    left: Tree::Node(Box::new(TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } })),
+    right: Tree::Node(Box::new(TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } }))
+  }));
+  //print!("{}", calc_tree(tree));
+  print!("{}", format_tree(tree));
 }
