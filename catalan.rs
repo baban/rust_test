@@ -3,14 +3,6 @@
 // まず演算子を使う
 // 演算子を使い切るまで、演算子の使った数 >= 数字を使った数になる
 
-
-enum Op {
-  Plus,
-  Minus,
-  Mul,
-  Div
-}
-
 struct TreeNode {
   left: Tree,
   right: Tree
@@ -76,32 +68,33 @@ fn build_test(mut tree: TreeNode, depth: i32) -> TreeNode {
   return tree
 }
 
-fn calc_tree(tree: Tree) -> i32 {
+fn calc_tree(tree: &Tree) -> i32 {
   return match tree {
     Tree::Node(node) => {
-      let refnode = *node;
-      calc_tree(refnode.left) + calc_tree(refnode.right)
+      let refnode = &*node;
+      calc_tree(&refnode.left) + calc_tree(&refnode.right)
     },
-    Tree::Leaf { value: v } => v,
+    Tree::Leaf { value: v } => *v,
   }
 }
 
-fn format_tree(tree: Tree) -> String {
+fn format_tree(tree: &Tree) -> String {
   return match tree {
     Tree::Node(node) => {
-      let refnode = *node;
-      format!("({} + {})", format_tree(refnode.left), format_tree(refnode.right))
+      let refnode = &*node;
+      format!("({} + {})", format_tree(&refnode.left), format_tree(&refnode.right))
     },
-    Tree::Leaf { value: v } => format!("{}", v),
+    Tree::Leaf { value: v } => format!("{}", *v),
   }
 }
 
 fn main(){
-  //catalan_tree(vec![].clone(), 0, 0);
+  catalan_tree(vec![].clone(), 0, 0);
   let tree = Tree::Node(Box::new(TreeNode {
     left: Tree::Node(Box::new(TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } })),
     right: Tree::Node(Box::new(TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } }))
   }));
-  //print!("{}", calc_tree(tree));
-  print!("{}", format_tree(tree));
+  let ret = calc_tree(&tree);
+  println!("{}", ret);
+  println!("{}", format_tree(&tree));
 }
