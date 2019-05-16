@@ -86,11 +86,13 @@ fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
   }
 }
 
-fn format_tree(tree: &Tree) -> String {
+fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> String {
   return match tree {
     Tree::Node(node) => {
       let refnode = &*node;
-      format!("({} + {})", format_tree(&refnode.left), format_tree(&refnode.right))
+      let op = operands[*operand_p];
+      *operand_p += 1;
+      format!("({} {} {})", format_tree(&refnode.left, &operands, operand_p), op, format_tree(&refnode.right, &operands, operand_p))
     },
     Tree::Leaf { value: v } => format!("{}", *v),
   }
@@ -108,9 +110,10 @@ fn main(){
       right: Tree::Leaf { value: 4 }
     }))
   }));
-  let operands = vec!['+', '+', '+'];
+  let operands = vec!['-', '+', '/'];
   let mut operand_p = 0;
   let ret = calc_tree(&tree, &operands, &mut operand_p);
   println!("{}", ret);
-  println!("{}", format_tree(&tree));
+  let mut operand_p2 = 0;
+  println!("{}", format_tree(&tree, &operands, &mut operand_p2));
 }
