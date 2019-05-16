@@ -68,11 +68,19 @@ fn build_test(mut tree: TreeNode, depth: i32) -> TreeNode {
   return tree
 }
 
-fn calc_tree(tree: &Tree) -> i32 {
+fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
   return match tree {
     Tree::Node(node) => {
       let refnode = &*node;
-      calc_tree(&refnode.left) + calc_tree(&refnode.right)
+      let op = *operand_p;
+      *operand_p += 1;
+      match operands[op] {
+        '+' => calc_tree(&refnode.left, &operands, operand_p) + calc_tree(&refnode.right, &operands, operand_p),
+        '-' => calc_tree(&refnode.left, &operands, operand_p) - calc_tree(&refnode.right, &operands, operand_p),
+        '*' => calc_tree(&refnode.left, &operands, operand_p) * calc_tree(&refnode.right, &operands, operand_p),
+        '/' => calc_tree(&refnode.left, &operands, operand_p) / calc_tree(&refnode.right, &operands, operand_p),
+        _ => -1
+      }
     },
     Tree::Leaf { value: v } => *v,
   }
@@ -89,12 +97,20 @@ fn format_tree(tree: &Tree) -> String {
 }
 
 fn main(){
-  catalan_tree(vec![].clone(), 0, 0);
+  //catalan_tree(vec![].clone(), 0, 0);
   let tree = Tree::Node(Box::new(TreeNode {
-    left: Tree::Node(Box::new(TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } })),
-    right: Tree::Node(Box::new(TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } }))
+    left: Tree::Node(Box::new(TreeNode {
+      left: Tree::Leaf { value: 4 },
+      right: Tree::Leaf { value: 4 }
+    })),
+    right: Tree::Node(Box::new(TreeNode {
+      left: Tree::Leaf { value: 4 },
+      right: Tree::Leaf { value: 4 }
+    }))
   }));
-  let ret = calc_tree(&tree);
+  let operands = vec!['+', '+', '+'];
+  let mut operand_p = 0;
+  let ret = calc_tree(&tree, &operands, &mut operand_p);
   println!("{}", ret);
   println!("{}", format_tree(&tree));
 }
