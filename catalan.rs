@@ -10,7 +10,8 @@ struct TreeNode {
 
 enum Tree {
   Node(Box<TreeNode>),
-  Leaf { value: i32 }
+  Leaf { value: i32 },
+  Empty
 }
 
 fn is_finish(op_cnt: i32, n_cnt: i32) -> bool {
@@ -19,13 +20,23 @@ fn is_finish(op_cnt: i32, n_cnt: i32) -> bool {
 
 fn catalan_tree(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   if is_finish(op_cnt, n_cnt){
-    println!("{} {}", op_cnt, n_cnt);
+    // println!("point : {} {}", op_cnt, n_cnt);
+    
     path.push(1);
+
+    print!("path : ");
     for d in path.clone() { print!("{} ", d) }
     println!("");
+    
     // TODO: Treeを完成させる
+    build_tree(path);
     // TODO: 10になるか検算する
+    // let ret = calc_tree(&tree, &operands, &mut operand_p);
     // TODO: 10になったらtreeの中身を印字
+    // if 1 <= ret && ret <= 10 {
+    //  println!("number : {}", ret);
+    //  println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
+    // }
     return
   }
   // 演算子を積む
@@ -42,30 +53,58 @@ fn catalan_tree(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   }
 }
 
-/*
-fn build_tree(path: Vec<i32>, mut tree: Tree<i32>){
-  if path.len() == 0 {
-    return
-  }
-  let head = path[0];
-  // 演算子(2)では最初の枝に、次の演算子を積む
-  // 数値の(1)場合は、左の枝、右の枝、親の右の枝の順で空いているところを探して
-  match head {
-    2 => Tree::Node(Op::Plus, None, None),
-    1 => Tree::Node(Op::Plus, None, None),
-    _ => Tree::Node(Op::Plus, None, None),
-  };
-}
-*/
+fn build_tree(path: Vec<i32>) {
+  // pathから要素を一個取り出す
+  // nodeならstackに積む
+  // leafならstackからnodeをpopしてnodeのrightかleft空いている方に紐付ける
+  // nodeの片方しか埋まっていないときはstackにnodeを戻す
+  // nodeの両方が埋まったらstackに戻さない
+  // pathの最後までこの処理を行ったら、最後に持っているnodeがtreeのroot
+  let mut stack = Vec::<Tree>::new();
+  
+  for pnt in path {
+    match pnt {
+      // node
+      2 => {
+        let latest_node = stack.pop();
+        // 最初のnodeはstackが空
+        let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
+        let new_node = Tree::Node(Box::new(new_tree_node));
+        if let Some(real_latest_node) = latest_node {
+          // stack.push(real_latest_node);
+          if let Tree::Node(boxed_tree_node) = real_latest_node {
+            let mut tree_node = *boxed_tree_node;
+            tree_node.left = new_node;
+            // stack.push(new_node);
+          }
+        }
+      },
+      // leaf 
+      1 => {
+        let latest_node = stack.pop();
+        if let Some(real_latest_node) = latest_node {
+          if let Tree::Node(boxed_tree_node) = real_latest_node {
+            let mut tree_node = *boxed_tree_node;
+            let new_leaf = Tree::Leaf { value: 4 };
+            /*
+            if tree_node.left == Tree::Empty {
+              tree_node.left = new_leaf;
+              // stack.push(real_latest_node);
+            } else {
+              tree_node.right = new_leaf;
+            };
+            if tree_node.left != Tree::Empty && tree_node.right != Tree::Empty {
 
-fn build_test(mut tree: TreeNode, depth: i32) -> TreeNode {
-  if depth > 4 {
-    return tree
+            }
+            */
+          }
+        }
+        // stack.push(real_latest_node);
+      },
+      _ =>{},
+    };
   }
-  let new_tree_node = TreeNode { left: Tree::Leaf { value: 4 }, right: Tree::Leaf { value: 4 } };
-  let new_node = build_test(new_tree_node, depth + 1);
-  tree.left = Tree::Node(Box::new(new_node));
-  return tree
+  // let one_node = stack.pop(); // 最後に1個だけ残されたnodeがroot
 }
 
 fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
@@ -79,10 +118,11 @@ fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
         '-' => calc_tree(&refnode.left, &operands, operand_p) - calc_tree(&refnode.right, &operands, operand_p),
         '*' => calc_tree(&refnode.left, &operands, operand_p) * calc_tree(&refnode.right, &operands, operand_p),
         '/' => calc_tree(&refnode.left, &operands, operand_p) / calc_tree(&refnode.right, &operands, operand_p),
-        _ => -1
+        _ => -10000
       }
     },
     Tree::Leaf { value: v } => *v,
+    Tree::Empty => -10000,
   }
 }
 
@@ -95,11 +135,14 @@ fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> Stri
       format!("({} {} {})", format_tree(&refnode.left, &operands, operand_p), op, format_tree(&refnode.right, &operands, operand_p))
     },
     Tree::Leaf { value: v } => format!("{}", *v),
+    Tree::Empty => format!(""),
   }
 }
 
 fn main(){
-  //catalan_tree(vec![].clone(), 0, 0);
+  catalan_tree(vec![].clone(), 0, 0);
+  let path = vec![2,2,2,1,1,1,1];
+  build_tree(path);
   let tree = Tree::Node(Box::new(TreeNode {
     left: Tree::Node(Box::new(TreeNode {
       left: Tree::Leaf { value: 4 },
@@ -111,9 +154,10 @@ fn main(){
     }))
   }));
   let operands = vec!['-', '+', '/'];
+  // 計算
   let mut operand_p = 0;
-  let ret = calc_tree(&tree, &operands, &mut operand_p);
-  println!("{}", ret);
+  println!("number : {}", calc_tree(&tree, &operands, &mut operand_p));
+  // 式表示
   let mut operand_p2 = 0;
-  println!("{}", format_tree(&tree, &operands, &mut operand_p2));
+  println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
 }
