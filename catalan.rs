@@ -53,6 +53,15 @@ fn catalan_tree(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   }
 }
 
+fn fill_node(parent_node: Tree, child_node: &Tree) -> bool {
+  if let Tree::Node(boxed_tree_node) = parent_node {
+    let mut tree_node = *boxed_tree_node;
+    // TODO: 空いてる方向に積む
+    // tree_node.left = *child_node;
+  }
+  true
+}
+
 fn build_tree(path: Vec<i32>) {
   // pathから要素を一個取り出す
   // nodeならstackに積む
@@ -72,34 +81,20 @@ fn build_tree(path: Vec<i32>) {
         let new_node = Tree::Node(Box::new(new_tree_node));
         if let Some(real_latest_node) = latest_node {
           // stack.push(real_latest_node);
-          if let Tree::Node(boxed_tree_node) = real_latest_node {
-            let mut tree_node = *boxed_tree_node;
-            tree_node.left = new_node;
-            // stack.push(new_node);
-          }
+          fill_node(real_latest_node, &new_node);
         }
+        stack.push(new_node);
       },
       // leaf 
       1 => {
         let latest_node = stack.pop();
+        let new_leaf = Tree::Leaf { value: 4 };
         if let Some(real_latest_node) = latest_node {
-          if let Tree::Node(boxed_tree_node) = real_latest_node {
-            let mut tree_node = *boxed_tree_node;
-            let new_leaf = Tree::Leaf { value: 4 };
-            /*
-            if tree_node.left == Tree::Empty {
-              tree_node.left = new_leaf;
-              // stack.push(real_latest_node);
-            } else {
-              tree_node.right = new_leaf;
-            };
-            if tree_node.left != Tree::Empty && tree_node.right != Tree::Empty {
-
-            }
-            */
+          let is_full = fill_node(real_latest_node, &new_leaf);
+          if !is_full {
+            // stack.push(real_latest_node);
           }
         }
-        // stack.push(real_latest_node);
       },
       _ =>{},
     };
