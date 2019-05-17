@@ -113,6 +113,7 @@ fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
         '-' => calc_tree(&refnode.left, &operands, operand_p) - calc_tree(&refnode.right, &operands, operand_p),
         '*' => calc_tree(&refnode.left, &operands, operand_p) * calc_tree(&refnode.right, &operands, operand_p),
         '/' => calc_tree(&refnode.left, &operands, operand_p) / calc_tree(&refnode.right, &operands, operand_p),
+        '%' => calc_tree(&refnode.left, &operands, operand_p) % calc_tree(&refnode.right, &operands, operand_p),
         _ => -10000
       }
     },
@@ -130,7 +131,7 @@ fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> Stri
       format!("({} {} {})", format_tree(&refnode.left, &operands, operand_p), op, format_tree(&refnode.right, &operands, operand_p))
     },
     Tree::Leaf { value: v } => format!("{}", *v),
-    Tree::Empty => format!(""),
+    Tree::Empty => format!("?"),
   }
 }
 
