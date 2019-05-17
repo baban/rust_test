@@ -53,53 +53,67 @@ fn catalan_path(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   }
 }
 
-fn fill_node(parent_node: Tree, child_node: &Tree) -> bool {
-  if let Tree::Node(boxed_tree_node) = parent_node {
-    let mut tree_node = *boxed_tree_node;
-    // TODO: 空いてる方向に積む
-    // tree_node.left = *child_node;
-  }
-  true
-}
-
-fn build_tree(path: Vec<i32>) {
+fn build_tree(path: Vec<i32>) -> Option<Tree> {
   // pathから要素を一個取り出す
   // nodeならstackに積む
   // leafならstackからnodeをpopしてnodeのrightかleft空いている方に紐付ける
   // nodeの片方しか埋まっていないときはstackにnodeを戻す
   // nodeの両方が埋まったらstackに戻さない
   // pathの最後までこの処理を行ったら、最後に持っているnodeがtreeのroot
-  let mut stack = Vec::<Tree>::new();
-  
+  let mut stack = Vec::<TreeNode>::new();
   for pnt in path {
     match pnt {
       // node
       2 => {
         let latest_node = stack.pop();
-        // 最初のnodeはstackが空
-        let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
-        let new_node = Tree::Node(Box::new(new_tree_node));
-        if let Some(real_latest_node) = latest_node {
-          // stack.push(real_latest_node);
-          fill_node(real_latest_node, &new_node);
+        if let Some(mut parent_node) = latest_node {
+          match parent_node.left {
+            Tree::Empty => {
+              let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
+              parent_node.left = Tree::Node(Box::new(TreeNode { left: Tree::Empty, right: Tree::Empty }));
+              stack.push(parent_node);
+              stack.push(new_tree_node);
+            },
+            _ => {
+              let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
+              parent_node.right = Tree::Node(Box::new(TreeNode { left: Tree::Empty, right: Tree::Empty }));
+              stack.push(parent_node);
+              stack.push(new_tree_node);
+            },
+          }
+        } else {
+          // 最初のnodeはstackが空なのでココが呼ばれる
+          let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
+          stack.push(new_tree_node);
         }
-        stack.push(new_node);
+        println!("stack length : {}", stack.len());
       },
       // leaf 
       1 => {
         let latest_node = stack.pop();
-        let new_leaf = Tree::Leaf { value: 4 };
-        if let Some(real_latest_node) = latest_node {
-          let is_full = fill_node(real_latest_node, &new_leaf);
-          if !is_full {
-            // stack.push(real_latest_node);
+        if let Some(mut parent_node) = latest_node {
+          match parent_node.left {
+            Tree::Empty => {
+              parent_node.left = Tree::Leaf { value: 4 };
+              stack.push(parent_node);
+            },
+            _ => {
+              parent_node.right = Tree::Leaf { value: 4 };
+            },
           }
         }
+        println!("stack length : {}", stack.len());
       },
       _ =>{},
     };
   }
-  // let one_node = stack.pop(); // 最後に1個だけ残されたnodeがroot
+  println!("last stack length : {}", stack.len());
+  let root_node = stack.pop(); // 最後に1個だけ残されたnodeがroot
+  if let Some(real_latest_node) = root_node {
+    return Some(Tree::Node(Box::new(real_latest_node)))
+  } else {
+    return None
+  }
 }
 
 fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
@@ -164,9 +178,17 @@ fn build_operand_table(ops: Vec<char>, depth: i32, operand_table: &mut Vec<Vec<c
 }
 
 fn main(){
-  catalan_path(vec![].clone(), 0, 0);
-  let path = vec![2,2,2,1,1,1,1];
-  build_tree(path);
+  // catalan_path(vec![].clone(), 0, 0);
+  let path = vec![2,2,2,1,1,1];
+  let optioned_tree = build_tree(path);
+  if let Some(tree) = optioned_tree {
+    // 式表示
+    let mut operand_p = 0;
+    println!("formula : {}", format_tree(&tree, &vec!['+', '+', '+'], &mut operand_p));
+  } else {
+
+  }
+  /*
   let tree = Tree::Node(Box::new(TreeNode {
     left: Tree::Node(Box::new(TreeNode {
       left: Tree::Leaf { value: 4 },
@@ -187,4 +209,5 @@ fn main(){
     let mut operand_p = 0;
     println!("number : {}", calc_tree(&tree, &operands, &mut operand_p));
   }
+  */
 }
