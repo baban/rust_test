@@ -112,8 +112,24 @@ fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
         '+' => calc_tree(&refnode.left, &operands, operand_p) + calc_tree(&refnode.right, &operands, operand_p),
         '-' => calc_tree(&refnode.left, &operands, operand_p) - calc_tree(&refnode.right, &operands, operand_p),
         '*' => calc_tree(&refnode.left, &operands, operand_p) * calc_tree(&refnode.right, &operands, operand_p),
-        '/' => calc_tree(&refnode.left, &operands, operand_p) / calc_tree(&refnode.right, &operands, operand_p),
-        '%' => calc_tree(&refnode.left, &operands, operand_p) % calc_tree(&refnode.right, &operands, operand_p),
+        '/' => {
+          let a = calc_tree(&refnode.left, &operands, operand_p);
+          let b = calc_tree(&refnode.right, &operands, operand_p);
+          if a != 0 && b != 0 {
+            a / b
+          } else {
+            -10000
+          }
+        },
+        '%' => {
+          let a = calc_tree(&refnode.left, &operands, operand_p);
+          let b = calc_tree(&refnode.right, &operands, operand_p);
+          if a != 0 && b != 0 {
+            a % b
+          } else {
+            -10000
+          }
+        },
         _ => -10000
       }
     },
@@ -135,14 +151,15 @@ fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> Stri
   }
 }
 
-fn build_operand_table(ops: Vec<char>, depth: i32){
+fn build_operand_table(ops: Vec<char>, depth: i32, operand_table: &mut Vec<Vec<char>>){
   if depth == 3 {
+    operand_table.push(ops);
     return;
   }
   for op in vec!['+', '-', '*', '/', '%'] {
     let mut clone_ops = ops.clone();
     clone_ops.push(op);
-    build_operand_table(clone_ops, depth + 1);
+    build_operand_table(clone_ops, depth + 1, &mut *operand_table);
   }
 }
 
@@ -160,13 +177,14 @@ fn main(){
       right: Tree::Leaf { value: 4 }
     }))
   }));
-
-  build_operand_table(vec![], 1);
-  let operands = vec!['-', '+', '/'];
-  // 計算
-  let mut operand_p = 0;
-  println!("number : {}", calc_tree(&tree, &operands, &mut operand_p));
-  // 式表示
-  let mut operand_p2 = 0;
-  println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
+  let mut operand_table: Vec<Vec<char>> = vec![];
+  build_operand_table(vec![], 0, &mut operand_table);
+  for operands in operand_table {
+    // 式表示
+    let mut operand_p2 = 0;
+    println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
+    // 計算
+    let mut operand_p = 0;
+    println!("number : {}", calc_tree(&tree, &operands, &mut operand_p));
+  }
 }
