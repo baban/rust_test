@@ -18,7 +18,7 @@ fn is_finish(op_cnt: i32, n_cnt: i32) -> bool {
   op_cnt == 3 && n_cnt == 3
 }
 
-fn catalan_tree(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
+fn catalan_path(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   if is_finish(op_cnt, n_cnt){
     // println!("point : {} {}", op_cnt, n_cnt);
     
@@ -43,13 +43,13 @@ fn catalan_tree(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   if op_cnt < 3 {
     let mut left = path.clone();
     left.push(2);
-    catalan_tree(left, op_cnt + 1, n_cnt)
+    catalan_path(left, op_cnt + 1, n_cnt)
   }
   // 数字を積む
   if op_cnt > n_cnt {
     let mut up = path.clone();
     up.push(1);
-    catalan_tree(up, op_cnt, n_cnt + 1)
+    catalan_path(up, op_cnt, n_cnt + 1)
   }
 }
 
@@ -136,7 +136,7 @@ fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> Stri
 }
 
 fn main(){
-  catalan_tree(vec![].clone(), 0, 0);
+  catalan_path(vec![].clone(), 0, 0);
   let path = vec![2,2,2,1,1,1,1];
   build_tree(path);
   let tree = Tree::Node(Box::new(TreeNode {
