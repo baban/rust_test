@@ -135,6 +135,17 @@ fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> Stri
   }
 }
 
+fn build_operand_table(ops: Vec<char>, depth: i32){
+  if depth == 3 {
+    return;
+  }
+  for op in vec!['+', '-', '*', '/', '%'] {
+    let mut clone_ops = ops.clone();
+    clone_ops.push(op);
+    build_operand_table(clone_ops, depth + 1);
+  }
+}
+
 fn main(){
   catalan_path(vec![].clone(), 0, 0);
   let path = vec![2,2,2,1,1,1,1];
@@ -149,6 +160,8 @@ fn main(){
       right: Tree::Leaf { value: 4 }
     }))
   }));
+
+  build_operand_table(vec![], 1);
   let operands = vec!['-', '+', '/'];
   // 計算
   let mut operand_p = 0;
