@@ -4,6 +4,7 @@
 // 演算子を使い切るまで、演算子の使った数 >= 数字を使った数になる
 
 use std::cell::RefCell;
+use std::cell::Ref;
 
 struct TreeNode {
   left: Tree,
@@ -16,13 +17,14 @@ enum Tree {
   Empty
 }
 
-struct RefTreeNode {
-  left: RefTree,
-  right: RefTree
+
+struct RefTreeNode<'a> {
+  left: RefTree<'a>,
+  right: RefTree<'a>
 }
 
-enum RefTree {
-  Node(Box<RefTreeNode>),
+enum RefTree<'b> {
+  Node(Ref<'b, RefTreeNode<'b>>),
   Leaf { value: i32 },
   Empty
 }
@@ -74,9 +76,12 @@ fn build_tree(path: Vec<i32>) {
   // nodeの片方しか埋まっていないときはstackにnodeを戻す
   // nodeの両方が埋まったらstackに戻さない
   // pathの最後までこの処理を行ったら、最後に持っているnodeがtreeのroot
-  let mut stack = Vec::<RefTreeNode>::new();
-  let new_tree_node = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
-  stack.push(new_tree_node);
+  //let mut stack = Vec::<Ref<RefTreeNode>>::new();
+  let mut parent_node = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
+  let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
+  //parent_node.left = RefTree::Node(new_tree_node.borrow());
+  //stack.push(new_tree_node.borrow());
+  //parent_node.left = RefTree:Node(&a);
   /*
   for pnt in path {
     match pnt {
