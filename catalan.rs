@@ -3,6 +3,8 @@
 // まず演算子を使う
 // 演算子を使い切るまで、演算子の使った数 >= 数字を使った数になる
 
+use std::cell::RefCell;
+
 struct TreeNode {
   left: Tree,
   right: Tree
@@ -10,6 +12,17 @@ struct TreeNode {
 
 enum Tree {
   Node(Box<TreeNode>),
+  Leaf { value: i32 },
+  Empty
+}
+
+struct RefTreeNode {
+  left: RefTree,
+  right: RefTree
+}
+
+enum RefTree {
+  Node(Box<RefTreeNode>),
   Leaf { value: i32 },
   Empty
 }
@@ -53,14 +66,18 @@ fn catalan_path(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   }
 }
 
-fn build_tree(path: Vec<i32>) -> Option<Tree> {
+fn build_tree(path: Vec<i32>) {
+//fn build_tree(path: Vec<i32>) -> Option<Tree> {
   // pathから要素を一個取り出す
   // nodeならstackに積む
   // leafならstackからnodeをpopしてnodeのrightかleft空いている方に紐付ける
   // nodeの片方しか埋まっていないときはstackにnodeを戻す
   // nodeの両方が埋まったらstackに戻さない
   // pathの最後までこの処理を行ったら、最後に持っているnodeがtreeのroot
-  let mut stack = Vec::<TreeNode>::new();
+  let mut stack = Vec::<RefTreeNode>::new();
+  let new_tree_node = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
+  stack.push(new_tree_node);
+  /*
   for pnt in path {
     match pnt {
       // node
@@ -107,6 +124,8 @@ fn build_tree(path: Vec<i32>) -> Option<Tree> {
       _ =>{},
     };
   }
+  */
+  /*
   println!("last stack length : {}", stack.len());
   let root_node = stack.pop(); // 最後に1個だけ残されたnodeがroot
   if let Some(real_latest_node) = root_node {
@@ -114,6 +133,7 @@ fn build_tree(path: Vec<i32>) -> Option<Tree> {
   } else {
     return None
   }
+  */
 }
 
 fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
@@ -181,6 +201,7 @@ fn main(){
   // catalan_path(vec![].clone(), 0, 0);
   let path = vec![2,2,2,1,1,1];
   let optioned_tree = build_tree(path);
+  /*
   if let Some(tree) = optioned_tree {
     // 式表示
     let mut operand_p = 0;
@@ -188,6 +209,7 @@ fn main(){
   } else {
 
   }
+  */
   /*
   let tree = Tree::Node(Box::new(TreeNode {
     left: Tree::Node(Box::new(TreeNode {

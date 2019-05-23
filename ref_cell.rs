@@ -24,21 +24,18 @@ enum RefTree {
   Leaf { value: i32 },
   Empty
 }
-/*
-fn short_lifetime(mut b: Vec<TreeNode>) -> Vec<TreeNode>{
-  let a = RefCell::new(TreeNode { left: Tree::Empty, right: Tree::Empty });
-  b.push(a.borrow());
-  return b;
-}
-*/
+
 fn main(){
   let a = Rc::new(RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty }));
   let mut b = Vec::<Ref<RefTreeNode>>::new();
   let mut c = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
   b.push(a.borrow());
-  let d = Rc::new(a.borrow());
-  // c.left = Rc::new(RefTree::Empty);
+  let d: Ref<RefTreeNode> = a.borrow();
+  let e = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
+  //let d = Rc::new(a.borrow());
   c.left = RefTree::Empty;
+  //c.left = RefTree::Node(Box::new(*d));
+  //c.left = RefTree::Node(Box::new(d));
 
   //println!("{:?}", a);
   //println!("{:?}", a.borrow());
