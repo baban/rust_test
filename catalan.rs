@@ -1,10 +1,8 @@
-// 右、左を持つ構造体を扱う
-// まず足し算だけを使う想定でコードを書きます
-// まず演算子を使う
-// 演算子を使い切るまで、演算子の使った数 >= 数字を使った数になる
+// `4 4 4 4` にカッコと（+, -, /, ÷) を組み合わせて 1 〜 10 の数値を生成せよ
 
 use std::cell::RefCell;
 use std::cell::Ref;
+use std::cell::RefMut;
 
 struct TreeNode {
   left: Tree,
@@ -76,13 +74,9 @@ fn build_tree(path: Vec<i32>) {
   // nodeの片方しか埋まっていないときはstackにnodeを戻す
   // nodeの両方が埋まったらstackに戻さない
   // pathの最後までこの処理を行ったら、最後に持っているnodeがtreeのroot
-  //let mut stack = Vec::<Ref<RefTreeNode>>::new();
+  let mut stack = Vec::<RefMut<RefTreeNode>>::new();
   let mut parent_node = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
   let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
-  //parent_node.left = RefTree::Node(new_tree_node.borrow());
-  //stack.push(new_tree_node.borrow());
-  //parent_node.left = RefTree:Node(&a);
-  /*
   for pnt in path {
     match pnt {
       // node
@@ -90,23 +84,23 @@ fn build_tree(path: Vec<i32>) {
         let latest_node = stack.pop();
         if let Some(mut parent_node) = latest_node {
           match parent_node.left {
-            Tree::Empty => {
-              let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
-              parent_node.left = Tree::Node(Box::new(TreeNode { left: Tree::Empty, right: Tree::Empty }));
+            RefTree::Empty => {
+              let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
+              // parent_node.left = RefTree::Node(new_tree_node.borrow());
               stack.push(parent_node);
-              stack.push(new_tree_node);
+              // stack.push(new_tree_node.borrow_mut());
             },
             _ => {
-              let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
-              parent_node.right = Tree::Node(Box::new(TreeNode { left: Tree::Empty, right: Tree::Empty }));
+              let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
+              // parent_node.left = RefTree::Node(new_tree_node.borrow());
               stack.push(parent_node);
-              stack.push(new_tree_node);
+              // stack.push(new_tree_node.borrow_mut());
             },
           }
         } else {
           // 最初のnodeはstackが空なのでココが呼ばれる
-          let new_tree_node = TreeNode { left: Tree::Empty, right: Tree::Empty };
-          stack.push(new_tree_node);
+          let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
+          // stack.push(new_tree_node.borrow_mut());
         }
         println!("stack length : {}", stack.len());
       },
@@ -115,30 +109,20 @@ fn build_tree(path: Vec<i32>) {
         let latest_node = stack.pop();
         if let Some(mut parent_node) = latest_node {
           match parent_node.left {
-            Tree::Empty => {
-              parent_node.left = Tree::Leaf { value: 4 };
+            RefTree::Empty => {
+              parent_node.left = RefTree::Leaf { value: 4 };
               stack.push(parent_node);
             },
             _ => {
-              parent_node.right = Tree::Leaf { value: 4 };
+              parent_node.right = RefTree::Leaf { value: 4 };
             },
           }
+          println!("stack length : {}", stack.len());
         }
-        println!("stack length : {}", stack.len());
       },
       _ =>{},
     };
   }
-  */
-  /*
-  println!("last stack length : {}", stack.len());
-  let root_node = stack.pop(); // 最後に1個だけ残されたnodeがroot
-  if let Some(real_latest_node) = root_node {
-    return Some(Tree::Node(Box::new(real_latest_node)))
-  } else {
-    return None
-  }
-  */
 }
 
 fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
