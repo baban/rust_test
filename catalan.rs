@@ -137,6 +137,21 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
   stack.pop()
 }
 
+fn translate_tree( ref_tree_node: &RefTree ) -> Tree {
+  match ref_tree_node {
+    RefTree::Node(rc_ref_tree_node) => {
+      let ref_tree_node = &*(*rc_ref_tree_node).borrow();
+      return Tree::Node(Box::new(TreeNode {
+        left: translate_tree( &ref_tree_node.left ),
+        right: translate_tree( &ref_tree_node.left )
+      }))
+    }
+    _ => {
+      return Tree::Leaf { value: 4 }
+    }
+  }
+}
+
 fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
   return match tree {
     Tree::Node(node) => {
@@ -198,19 +213,19 @@ fn build_operand_table(ops: Vec<char>, depth: i32, operand_table: &mut Vec<Vec<c
   }
 }
 
+
 fn main(){
   // catalan_path(vec![].clone(), 0, 0);
-  let path = vec![2,2,2,1,1,1];
-  let optioned_tree = path_to_ref_tree_node(path);
-  /*
-  if let Some(tree) = optioned_tree {
+  let path = vec![2, 2, 2, 1, 1, 1];
+  let optioned_ref_tree_node = path_to_ref_tree_node(path);
+  if let Some(rc_ref_tree_node) = optioned_ref_tree_node {
+    let tree = translate_tree( &RefTree::Node(rc_ref_tree_node) );
     // 式表示
-    let mut operand_p = 0;
-    println!("formula : {}", format_tree(&tree, &vec!['+', '+', '+'], &mut operand_p));
+    // let mut operand_p = 0;
+    // println!("formula : {}", format_tree(&tree, &vec!['+', '+', '+'], &mut operand_p));
   } else {
 
   }
-  */
   /*
   let tree = Tree::Node(Box::new(TreeNode {
     left: Tree::Node(Box::new(TreeNode {
