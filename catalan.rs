@@ -3,6 +3,7 @@
 use std::cell::RefCell;
 use std::cell::Ref;
 use std::cell::RefMut;
+use std::rc::Rc;
 
 struct TreeNode {
   left: Tree,
@@ -16,13 +17,13 @@ enum Tree {
 }
 
 
-struct RefTreeNode<'a> {
-  left: RefTree<'a>,
-  right: RefTree<'a>
+struct RefTreeNode {
+  left: RefTree,
+  right: RefTree
 }
 
-enum RefTree<'b> {
-  Node(Ref<'b, RefTreeNode<'b>>),
+enum RefTree {
+  Node(Rc<RefCell<RefTreeNode>>),
   Leaf { value: i32 },
   Empty
 }
@@ -42,7 +43,7 @@ fn catalan_path(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
     println!("");
     
     // TODO: Treeを完成させる
-    build_tree(path);
+    // build_tree(path);
     // TODO: 10になるか検算する
     // let ret = calc_tree(&tree, &operands, &mut operand_p);
     // TODO: 10になったらtreeの中身を印字
@@ -66,56 +67,66 @@ fn catalan_path(mut path: Vec<i32>, op_cnt: i32, n_cnt: i32){
   }
 }
 
-fn build_tree(path: Vec<i32>) {
-//fn build_tree(path: Vec<i32>) -> Option<Tree> {
+fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
   // pathから要素を一個取り出す
   // nodeならstackに積む
   // leafならstackからnodeをpopしてnodeのrightかleft空いている方に紐付ける
   // nodeの片方しか埋まっていないときはstackにnodeを戻す
   // nodeの両方が埋まったらstackに戻さない
   // pathの最後までこの処理を行ったら、最後に持っているnodeがtreeのroot
-  let mut stack = Vec::<RefMut<RefTreeNode>>::new();
-  let mut parent_node = RefTreeNode { left: RefTree::Empty, right: RefTree::Empty };
-  let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
+  let mut stack = Vec::<Rc<RefCell<RefTreeNode>>>::new();
   for pnt in path {
     match pnt {
       // node
       2 => {
         let latest_node = stack.pop();
-        if let Some(mut parent_node) = latest_node {
+        if let Some(boxed_parent_node) = latest_node {
+          let cloned_boxed_parent_node = boxed_parent_node.clone();
+          let mut parent_node = (*cloned_boxed_parent_node).borrow_mut();
           match parent_node.left {
-            RefTree::Empty => {
-              let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
-              // parent_node.left = RefTree::Node(new_tree_node.borrow());
-              stack.push(parent_node);
-              // stack.push(new_tree_node.borrow_mut());
-            },
-            _ => {
-              let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
-              // parent_node.left = RefTree::Node(new_tree_node.borrow());
-              stack.push(parent_node);
-              // stack.push(new_tree_node.borrow_mut());
-            },
+             RefTree::Empty => {
+               let new_tree_node = Rc::new(RefCell::new(RefTreeNode {
+                 left: RefTree::Empty,
+                 right: RefTree::Empty
+               }));
+               parent_node.left = RefTree::Node(new_tree_node.clone());
+               stack.push(boxed_parent_node);
+               stack.push(new_tree_node.clone());
+             },
+             _ => {
+               let new_tree_node = Rc::new(RefCell::new(RefTreeNode {
+                 left: RefTree::Empty,
+                 right: RefTree::Empty
+               }));
+               parent_node.left = RefTree::Node(new_tree_node.clone());
+               stack.push(boxed_parent_node);
+               stack.push(new_tree_node.clone());
+             },
           }
         } else {
           // 最初のnodeはstackが空なのでココが呼ばれる
-          let new_tree_node = RefCell::new(RefTreeNode { left: RefTree::Empty, right: RefTree::Empty });
-          // stack.push(new_tree_node.borrow_mut());
+          let new_tree_node = Rc::new(RefCell::new(RefTreeNode {
+            left: RefTree::Empty,
+            right: RefTree::Empty
+          }));
+          stack.push(new_tree_node);
         }
         println!("stack length : {}", stack.len());
       },
       // leaf 
       1 => {
         let latest_node = stack.pop();
-        if let Some(mut parent_node) = latest_node {
-          match parent_node.left {
-            RefTree::Empty => {
-              parent_node.left = RefTree::Leaf { value: 4 };
-              stack.push(parent_node);
-            },
-            _ => {
-              parent_node.right = RefTree::Leaf { value: 4 };
-            },
+        if let Some(boxed_parent_node) = latest_node {
+          let cloned_boxed_parent_node = boxed_parent_node.clone();
+          let mut parent_node = (*cloned_boxed_parent_node).borrow_mut();
+           match parent_node.left {
+             RefTree::Empty => {
+               parent_node.left = RefTree::Leaf { value: 4 };
+               stack.push(boxed_parent_node);
+             },
+             _ => {
+               parent_node.right = RefTree::Leaf { value: 4 };
+             },
           }
           println!("stack length : {}", stack.len());
         }
@@ -123,6 +134,7 @@ fn build_tree(path: Vec<i32>) {
       _ =>{},
     };
   }
+  stack.pop()
 }
 
 fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
@@ -189,7 +201,7 @@ fn build_operand_table(ops: Vec<char>, depth: i32, operand_table: &mut Vec<Vec<c
 fn main(){
   // catalan_path(vec![].clone(), 0, 0);
   let path = vec![2,2,2,1,1,1];
-  let optioned_tree = build_tree(path);
+  let optioned_tree = path_to_ref_tree_node(path);
   /*
   if let Some(tree) = optioned_tree {
     // 式表示
