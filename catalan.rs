@@ -1,9 +1,7 @@
 // `4 4 4 4` にカッコと（+, -, /, ÷) を組み合わせて 1 〜 10 の数値を生成せよ
 
-use std::cell::RefCell;
-use std::cell::Ref;
-use std::cell::RefMut;
 use std::rc::Rc;
+use std::cell::RefCell;
 
 struct TreeNode {
   left: Tree,
@@ -12,8 +10,7 @@ struct TreeNode {
 
 enum Tree {
   Node(Box<TreeNode>),
-  Leaf { value: i32 },
-  Empty
+  Leaf { value: i32 }
 }
 
 
@@ -143,7 +140,7 @@ fn translate_tree( ref_tree_node: &RefTree ) -> Tree {
       let ref_tree_node = &*(*rc_ref_tree_node).borrow();
       return Tree::Node(Box::new(TreeNode {
         left: translate_tree( &ref_tree_node.left ),
-        right: translate_tree( &ref_tree_node.left )
+        right: translate_tree( &ref_tree_node.right )
       }))
     }
     _ => {
@@ -184,7 +181,6 @@ fn calc_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> i32 {
       }
     },
     Tree::Leaf { value: v } => *v,
-    Tree::Empty => -10000,
   }
 }
 
@@ -197,7 +193,6 @@ fn format_tree(tree: &Tree, operands: &Vec<char>, operand_p: &mut usize) -> Stri
       format!("({} {} {})", format_tree(&refnode.left, &operands, operand_p), op, format_tree(&refnode.right, &operands, operand_p))
     },
     Tree::Leaf { value: v } => format!("{}", *v),
-    Tree::Empty => format!("?"),
   }
 }
 
@@ -215,37 +210,23 @@ fn build_operand_table(ops: Vec<char>, depth: i32, operand_table: &mut Vec<Vec<c
 
 
 fn main(){
-  // catalan_path(vec![].clone(), 0, 0);
+  catalan_path(vec![].clone(), 0, 0);
   let path = vec![2, 2, 2, 1, 1, 1];
   let optioned_ref_tree_node = path_to_ref_tree_node(path);
   if let Some(rc_ref_tree_node) = optioned_ref_tree_node {
     let tree = translate_tree( &RefTree::Node(rc_ref_tree_node) );
     // 式表示
-    // let mut operand_p = 0;
-    // println!("formula : {}", format_tree(&tree, &vec!['+', '+', '+'], &mut operand_p));
-  } else {
-
-  }
-  /*
-  let tree = Tree::Node(Box::new(TreeNode {
-    left: Tree::Node(Box::new(TreeNode {
-      left: Tree::Leaf { value: 4 },
-      right: Tree::Leaf { value: 4 }
-    })),
-    right: Tree::Node(Box::new(TreeNode {
-      left: Tree::Leaf { value: 4 },
-      right: Tree::Leaf { value: 4 }
-    }))
-  }));
-  let mut operand_table: Vec<Vec<char>> = vec![];
-  build_operand_table(vec![], 0, &mut operand_table);
-  for operands in operand_table {
-    // 式表示
-    let mut operand_p2 = 0;
-    println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
-    // 計算
     let mut operand_p = 0;
-    println!("number : {}", calc_tree(&tree, &operands, &mut operand_p));
+    println!("formula : {}", format_tree(&tree, &vec!['+', '+', '+'], &mut operand_p));
+    let mut operand_table: Vec<Vec<char>> = vec![];
+    build_operand_table(vec![], 0, &mut operand_table);
+    for operands in operand_table {
+      // 式表示
+      let mut operand_p2 = 0;
+      println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
+      // 計算
+      let mut operand_p = 0;
+      println!("number : {}", calc_tree(&tree, &operands, &mut operand_p));
+    }
   }
-  */
 }
