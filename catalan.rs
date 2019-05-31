@@ -63,7 +63,6 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
     left: RefTree::Empty,
     right: RefTree::Empty
   }));
-  stack.push(root_tree_node.clone());
 
   for pnt in path {
     let latest_node = stack.pop();
@@ -91,6 +90,9 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
              },
           }
           stack.push(new_tree_node.clone());
+        } else {
+          // stackが空の時の処理
+          stack.push(root_tree_node.clone());
         }
       },
       // leaf 
@@ -115,10 +117,10 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
       }
       _ =>{},
     };
-    println!("stack type : {}", pnt);
-    println!("stack length : {}", stack.len());
-    println!("{}", format_ref_tree(&RefTree::Node(root_tree_node.clone())));
-    println!("");
+    // println!("stack type : {}", pnt);
+    // println!("stack length : {}", stack.len());
+    // println!("{}", format_ref_tree(&RefTree::Node(root_tree_node.clone())));
+    // println!("");
   }
   return Some(root_tree_node);
 }
@@ -228,10 +230,10 @@ fn main(){
         let mut operand_p = 0;
         let ret = calc_tree(&tree, &operands, &mut operand_p);
         if 1 <= ret && ret <= 10 {
-          //println!("result : {}", ret);
+          println!("result : {}", ret);
           // 式表示
           operand_p = 0;
-          //println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
+          println!("formula : {}", format_tree(&tree, &operands, &mut operand_p));
         }
       }
     }
