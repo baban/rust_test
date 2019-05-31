@@ -82,9 +82,6 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
                parent_node.left = new_reftree_node;
                stack.push(boxed_parent_node);
              },
-             RefTree::Leaf { value: _v } => {
-               parent_node.right = new_reftree_node;
-             },
              _ => {
                parent_node.right = new_reftree_node;
              },
@@ -105,9 +102,6 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
             RefTree::Empty => {
               parent_node.left = new_reftree_node;
               stack.push(boxed_parent_node);
-            },
-            RefTree::Leaf { value: _v } => {
-              parent_node.right = new_reftree_node;
             },
             _ => {
               parent_node.right = new_reftree_node;
@@ -214,9 +208,9 @@ fn main(){
   let mut pathes: Vec<Vec<i32>> = vec![];
   catalan_path(vec![].clone(), 0, 0, &mut pathes);
   for path in pathes {
-    print!("path : ");
-    for d in path.clone() { print!("{} ", d) }
-    println!("");
+    // print!("path : ");
+    // for d in path.clone() { print!("{} ", d) }
+    // println!("");
     let optioned_ref_tree_node = path_to_ref_tree_node(path);
     if let Some(rc_ref_tree_node) = optioned_ref_tree_node {
       let tree = translate_tree( &RefTree::Node(rc_ref_tree_node) );
