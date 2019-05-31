@@ -81,15 +81,15 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
           match parent_node.left {
              RefTree::Empty => {
                parent_node.left = new_reftree_node;
+               stack.push(boxed_parent_node);
              },
-             RefTree::Leaf { value: v } => {
+             RefTree::Leaf { value: _v } => {
                parent_node.right = new_reftree_node;
              },
              _ => {
                parent_node.right = new_reftree_node;
              },
           }
-          stack.push(boxed_parent_node);
           stack.push(new_tree_node.clone());
         }
       },
@@ -104,7 +104,7 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
               parent_node.left = new_reftree_node;
               stack.push(boxed_parent_node);
             },
-            RefTree::Leaf { value: v } => {
+            RefTree::Leaf { value: _v } => {
               parent_node.right = new_reftree_node;
             },
             _ => {
@@ -117,11 +117,7 @@ fn path_to_ref_tree_node(path: Vec<i32>) -> Option<Rc<RefCell<RefTreeNode>>> {
     };
     println!("stack type : {}", pnt);
     println!("stack length : {}", stack.len());
-    if let Some(rc_ref_tree_node) = stack.first() {
-      let tree = translate_tree( &RefTree::Node(rc_ref_tree_node.clone()) );
-      // println!("{}", format_ref_tree(&RefTree::Node(rc_ref_tree_node)));
-      println!("{}", format_ref_tree((&RefTree::Node(rc_ref_tree_node.clone()))));
-    }
+    println!("{}", format_ref_tree(&RefTree::Node(root_tree_node.clone())));
     println!("");
   }
   return Some(root_tree_node);
@@ -234,7 +230,7 @@ fn main(){
         if 1 <= ret && ret <= 10 {
           //println!("result : {}", ret);
           // 式表示
-          let mut operand_p2 = 0;
+          operand_p = 0;
           //println!("formula : {}", format_tree(&tree, &operands, &mut operand_p2));
         }
       }
