@@ -214,13 +214,10 @@ fn main(){
     let optioned_ref_tree_node = path_to_ref_tree_node(path);
     if let Some(rc_ref_tree_node) = optioned_ref_tree_node {
       let tree = translate_tree( &RefTree::Node(rc_ref_tree_node) );
-      // 式表示
-      let mut operand_p = 0;
-      println!("formula : {}", format_tree(&tree, &vec!['+', '+', '+'], &mut operand_p));
       let mut operand_table: Vec<Vec<char>> = vec![];
       build_operand_table(vec![], 0, &mut operand_table);
       for operands in operand_table {
-        // 計算
+        // 式表示
         let mut operand_p = 0;
         let ret = calc_tree(&tree, &operands, &mut operand_p);
         if 1 <= ret && ret <= 10 {
